@@ -12,5 +12,5 @@ for flight in flights:
     print("Airline:", flight.airline_name)
     print("Plane:", flight.aircraft_code)
 
-
+matrix.show()
 print(flights)
