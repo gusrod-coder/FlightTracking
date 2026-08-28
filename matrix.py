@@ -1,7 +1,12 @@
-from PIL import Image, ImageDraw, ImageFont
+import os
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 import tkinter as tk
 
 class MatrixSimulator:
+    ImageDictionary = {
+        "Delta": os.path.join(os.path.dirname(__file__), "Images", "delta.png")
+    }
+
     _FONT = {
         "A": ("01110", "10001", "10001", "11111", "10001", "10001", "10001"),
         "B": ("11110", "10001", "10001", "11110", "10001", "10001", "11110"),
@@ -47,7 +52,7 @@ class MatrixSimulator:
         "?": ("01110", "10001", "00001", "00010", "00100", "00000", "00100"),
     }
 
-    def __init__(self, width=128, height=64, scale=5):
+    def __init__(self, width=128, height=64, scale=2.5):
         self.width = width
         self.height = height
         self.scale = scale
@@ -62,6 +67,8 @@ class MatrixSimulator:
             bg="black"
         )
         self.canvas.pack()
+    def rgb_to_hex(self,rgb):
+        return "#%02x%02x%02x" % rgb  # Convert (R, G, B) to Hex
 
     def set_pixel(self, x, y, color):
         if 0 <= x < self.width and 0 <= y < self.height:
@@ -100,6 +107,15 @@ class MatrixSimulator:
                                 fill=color,
                                 outline=""
                             )
+    def drawImage(self, image_name="Delta", x1=0, y1=0, color=(0, 0, 0)):
+        image_path = self.ImageDictionary.get(image_name, self.ImageDictionary["Delta"])
+        img = Image.open(image_path).convert("RGB")
+
+        width, height = img.size
+        for y in range(height):
+            for x in range(width):
+                r, g, b = img.getpixel((x, y))
+                self.set_pixel(x + x1, y + y1, self.rgb_to_hex((r, g, b)))
 
     def clear(self):
         self.canvas.delete("all")
