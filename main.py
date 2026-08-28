@@ -15,8 +15,16 @@ print(flights)
 
 
 
-
-
+def processText(text, numSkips) -> str:
+    print(text)
+    output = ""
+    for c in text:
+        if(c != " " and numSkips > 0):
+            output = output + c
+        else:
+            numSkips = numSkips - 1;
+            return output;
+        
 def show_flight(index=0):
     if index >= len(flights):
         matrix.root.destroy()
@@ -27,9 +35,9 @@ def show_flight(index=0):
     flight.set_flight_details(flight_details)
 
     matrix.clear()
-    matrix.draw_text(f"Age:{flight.aircraft_age}", 0, 0)
-    matrix.draw_text(f"Airline:{flight.airline_name}", 0, 20)
-    matrix.draw_text(f"Plane:{flight.aircraft_code}", 0, 40)
+    matrix.draw_text(processText(f"Age:{flight.aircraft_age}", 2), 0, 0)
+    matrix.draw_text(processText(f"Airline:{flight.airline_name}"), 0, 20)
+    matrix.draw_text(processText(f"Plane:{flight.aircraft_code}"), 0, 40)
     print("showing new")
 
     matrix.root.after(2000, show_flight, index + 1)
