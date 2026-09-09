@@ -9,9 +9,10 @@ fr_api = FlightRadar24API()
 reloadTime = 20
 interval = 5
 endWait = interval * 2
-bounds = fr_api.get_bounds_by_point(42.28574184424516, -83.71751929972811, 10000)
+bounds = fr_api.get_bounds_by_point(42.28574184424516, -83.71751929972811, 20000)
 flights = fr_api.get_flights(bounds = bounds)
 matrix = MatrixSimulator(128,64,15)
+airlines = ["Delta"]
 
 
 
@@ -40,24 +41,34 @@ def processText(text, numSkips) -> str:
         
 def show_flight(index=0):
     global flights
-    if index >= len(flights):
-        time.sleep(calculateExtraWait(len(flights)))
-        flights = fr_api.get_flights(bounds = bounds)
-        matrix.root.after(0,show_flight);
-        print("flights reloaded")
-    else:
-        matrix.drawImage("Delta", 96,32)
-        flight = flights[index]
-        flight_details = fr_api.get_flight_details(flight)
-        flight.set_flight_details(flight_details)
+    
+    with open("output.txt", "w", encoding="utf-8") as f:
+            
+        if index >= len(flights):
+            time.sleep(calculateExtraWait(len(flights)))
+            flights = fr_api.get_flights(bounds = bounds)
+            print(airlines, file=f);
+            matrix.root.after(0,show_flight);
+            
+        else:
+            
+            flight = flights[index]
+            flight_details = fr_api.get_flight_details(flight)
+            flight.set_flight_details(flight_details)
 
-        matrix.clear()
-        matrix.draw_text(processText(f"Age:{flight.aircraft_age}", 2), 0, 0)
-        matrix.draw_text(processText(f"Airline:{flight.airline_name}", 1), 0, 20)
-        matrix.draw_text(processText(f"Plane:{flight.aircraft_code}", 1), 0, 40)
-        print("showing new")
+            if flight.airline_name not in airlines:
+                airlines.append(flight.airline_name)
+            print(airlines, file=f);
 
-        matrix.root.after(interval * 1000, show_flight, index + 1)
+            matrix.clear()
+            matrix.draw_text(processText(f"Age:{flight.aircraft_age}", 2), 0, 0)
+            matrix.draw_text(processText(f"Airline:{flight.airline_name}", 1), 0, 20)
+            matrix.draw_text(processText(f"Plane:{flight.aircraft_code}", 1), 0, 40)
+            matrix.drawImage("Delta", 96,32)
+            matrix.drawImage("priv", 64,32)
+            print("showing new")
+
+            matrix.root.after(interval * 1000, show_flight, index + 1)
 
 
 matrix.root.after(0, show_flight)

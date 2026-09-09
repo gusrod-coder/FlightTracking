@@ -4,7 +4,8 @@ import tkinter as tk
 
 class MatrixSimulator:
     ImageDictionary = {
-        "Delta": os.path.join(os.path.dirname(__file__), "Images", "delta.png")
+        "Delta": os.path.join(os.path.dirname(__file__), "Images", "delta.png"),
+        "priv": os.path.join(os.path.dirname(__file__), "Images", "priv.png")
     }
 
     _FONT = {
