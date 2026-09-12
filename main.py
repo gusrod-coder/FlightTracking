@@ -10,7 +10,7 @@ reloadTime = 20
 interval = 5
 endWait = interval * 2
 
-bounds = fr_api.get_bounds_by_point(42.28574184424516, -83.71751929972811, 15000)
+bounds = fr_api.get_bounds_by_point(42.28574184424516, -83.71751929972811, 4000000)
 
 flights = fr_api.get_flights(bounds = bounds)
 matrix = MatrixSimulator(128,64,15)
@@ -28,7 +28,7 @@ def calculateExtraWait(numFlights):
         return reloadTime
     else:
         return endWait
-
+# def re
 
 def processText(text, numSkips) -> str:
     print(text)
@@ -48,7 +48,11 @@ def show_flight(index=0):
             
         if index >= len(flights):
             time.sleep(calculateExtraWait(len(flights)))
-            flights = fr_api.get_flights(bounds = bounds)
+            try:
+               flights = fr_api.get_flights(bounds = bounds)
+            except Exception:
+                flights = flights
+
             print(airlines, file=f);
             matrix.root.after(0,show_flight);
             
@@ -58,9 +62,10 @@ def show_flight(index=0):
             flight_details = fr_api.get_flight_details(flight)
             flight.set_flight_details(flight_details)
 
-            if flight.airline_name not in airlines:
-                airlines.append(flight.airline_name)
-            print(airlines, file=f);
+            # This code prints the list of all airlines to a file, can be used to get data on what images to save
+            # if flight.airline_name not in airlines:
+            #     airlines.append(flight.airline_name)
+            # print(airlines, file=f);
 
             matrix.clear()
             matrix.draw_text(processText(f"Age:{flight.aircraft_age}", 2), 0, 0)
