@@ -10,7 +10,7 @@ reloadTime = 20
 interval = 5
 endWait = interval * 2
 
-bounds = fr_api.get_bounds_by_point(42.28574184424516, -83.71751929972811, 4000000)
+bounds = fr_api.get_bounds_by_point(42.28574184424516, -83.71751929972811, 1000000)
 
 flights = fr_api.get_flights(bounds = bounds)
 matrix = MatrixSimulator(128,64,15)
@@ -28,7 +28,23 @@ def calculateExtraWait(numFlights):
         return reloadTime
     else:
         return endWait
-# def re
+def refreshAPI(flights, numFailed):
+    print("API failed X times:", numFailed)
+    time.sleep(2 ** numFailed)
+    print("API done resting")
+    try: 
+        return fr_api.get_flights(bounds = bounds)
+    except Exception:
+        return refreshAPI(flights, numFailed + 1)
+
+def refreshFlightDetails(flight, numFailed):
+    print("API failed X times:", numFailed)
+    time.sleep(2 ** numFailed)
+    print("API done resting")
+    try:
+        return fr_api.get_flight_details(flight)
+    except Exception:
+        return refreshFlightDetails(flight, numFailed + 1)
 
 def processText(text, numSkips) -> str:
     print(text)
@@ -51,7 +67,7 @@ def show_flight(index=0):
             try:
                flights = fr_api.get_flights(bounds = bounds)
             except Exception:
-                flights = flights
+                flights = refreshAPI(flights, 0)
 
             print(airlines, file=f);
             matrix.root.after(0,show_flight);
@@ -59,7 +75,10 @@ def show_flight(index=0):
         else:
             
             flight = flights[index]
-            flight_details = fr_api.get_flight_details(flight)
+            try:
+                flight_details = fr_api.get_flight_details(flight)
+            except Exception:
+                flight_details = refreshFlightDetails(flight, 0)
             flight.set_flight_details(flight_details)
 
             # This code prints the list of all airlines to a file, can be used to get data on what images to save
